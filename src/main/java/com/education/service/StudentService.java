@@ -19,7 +19,7 @@ public class StudentService {
     private StudentRepository studentRepository;
 
     public List<StudentDTO> getAllStudent() {
-        Iterable<Student> students = studentRepository.findAll();
+        List<Student> students = studentRepository.findAllStudent();
         List<StudentDTO> response = new LinkedList<>();
         for(Student student :students){
             response.add(studentToDTO(student));
@@ -40,21 +40,15 @@ public class StudentService {
     }
 
     public StudentDTO getStudentById(Integer studentId) {
-        Optional<Student> student = studentRepository.findById(studentId);
-        return student.map(value -> new StudentDTO(value.getName(),
-                value.getSurname(),
-                value.getLevel(),
-                value.getAge(),
-                value.getGender()))
-                .orElse(null);
+        Student student = studentRepository.getById(studentId);
+        return studentToDTO(student);
     }
 
     public Boolean updateStudentById(Integer studentId, StudentDTO dto) {
-        Optional<Student> optionalStudent = studentRepository.findById(studentId);
-        if(optionalStudent.isEmpty()){
+        Student student = studentRepository.getById(studentId);
+        if(student == null){
             return false;
         }
-        Student student = optionalStudent.get();
         student.setName(dto.getName());
         student.setSurname(dto.getSurname());
         student.setLevel(dto.getLevel());
@@ -64,8 +58,8 @@ public class StudentService {
     }
 
     public Boolean deleteStudentById(Integer id) {
-        Optional<Student> optional = studentRepository.findById(id);
-        if(optional.isEmpty()){
+        Student student = studentRepository.getById(id);
+        if(student == null){
             return false;
         }
         studentRepository.deleteById(id);
