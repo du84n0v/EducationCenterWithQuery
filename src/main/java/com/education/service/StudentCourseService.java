@@ -31,11 +31,10 @@ public class StudentCourseService {
     }
 
     public Boolean updateById(Integer id, StudentCourseDTO dto) {
-        Optional<StudentCourse> optional = repository.findById(id);
-        if(optional.isEmpty()){
+        StudentCourse studentCourse = repository.getById(id);
+        if(studentCourse == null){
             return false;
         }
-        StudentCourse studentCourse = new StudentCourse();
         studentCourse.setStudentId(dto.getStudentId());
         studentCourse.setCourseId(dto.getCourseId());
         studentCourse.setMark(dto.getMark());
@@ -45,8 +44,8 @@ public class StudentCourseService {
     }
 
     public StudentCourseDTO getStudentCourseById(Integer id) {
-        Optional<StudentCourse> optional = repository.findById(id);
-        return (optional.map(this::entityToDTO).orElse(null));
+        StudentCourse sc = repository.getById(id);
+        return (sc == null ? null : entityToDTO(sc));
     }
 
     public StudentCourseDTO entityToDTO(StudentCourse studentCourse){
@@ -57,26 +56,25 @@ public class StudentCourseService {
     }
 
     public StudentCourseDetailed getDetailInfo(Integer id) {
-        Optional<StudentCourse> optional = repository.findById(id);
-        if(optional.isEmpty()){
+        StudentCourse sc = repository.getById(id);
+        if(sc == null){
             return null;
         }
-        StudentCourse st = optional.get();
         StudentCourseDetailed result = new StudentCourseDetailed();
-        result.setId(st.getId());
-        result.setMark(st.getMark());
-        result.setCreatedDate(st.getCreatedDate());
-        result.setStudentShort(new StudentShortInfo(st.getStudentId(),
-                st.getStudent().getName(),
-                st.getStudent().getSurname()));
-        result.setCourseShort(new CourseShortInfo(st.getCourseId(),
-                st.getCourse().getName()));
+        result.setId(sc.getId());
+        result.setMark(sc.getMark());
+        result.setCreatedDate(sc.getCreatedDate());
+        result.setStudentShort(new StudentShortInfo(sc.getStudentId(),
+                sc.getStudent().getName(),
+                sc.getStudent().getSurname()));
+        result.setCourseShort(new CourseShortInfo(sc.getCourseId(),
+                sc.getCourse().getName()));
         return result;
     }
 
     public Boolean deleteStudentCourseById(Integer id) {
-        Optional<StudentCourse> optional = repository.findById(id);
-        if(optional.isEmpty()){
+        StudentCourse sc = repository.getById(id);
+        if(sc == null){
             return false;
         }
         repository.deleteById(id);
@@ -84,7 +82,7 @@ public class StudentCourseService {
     }
 
     public List<StudentCourseDTO> getAll() {
-        Iterable<StudentCourse> optional = repository.findAll();
+        List<StudentCourse> optional = repository.getAll();
         List<StudentCourseDTO> result = new LinkedList<>();
         for (StudentCourse studentCourse : optional) {
             result.add(entityToDTO(studentCourse));
